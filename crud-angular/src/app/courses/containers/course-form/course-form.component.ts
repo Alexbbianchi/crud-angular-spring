@@ -1,9 +1,11 @@
+import { Location } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { NonNullableFormBuilder } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute } from '@angular/router';
+
 import { Course } from '../../model/course';
 import { CoursesService } from '../../services/courses.service';
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, NonNullableFormBuilder } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-course-form',
@@ -11,27 +13,29 @@ import { Location } from '@angular/common';
   styleUrls: ['./course-form.component.scss'],
 })
 export class CourseFormComponent implements OnInit {
-
   form = this.formBuilder.group({
-    name: [""],
-    category: [""],
+    _id: [''],
+    name: [''],
+    category: [''],
   });
 
   constructor(
     private formBuilder: NonNullableFormBuilder,
     private service: CoursesService,
     private snackBar: MatSnackBar,
-    private location: Location
-  ) {
+    private location: Location,
+    private route: ActivatedRoute
+  ) {}
+
+  ngOnInit(): void {
+    const course: Course = this.route.snapshot.data['course'];
+    this.form.setValue({ ...course });
   }
 
-  ngOnInit(): void {}
-
   onSubmit() {
-
     this.service.save(this.form.value).subscribe({
       next: () => this.onSuccess(),
-      error: () => this.onError()
+      error: () => this.onError(),
     });
   }
 
@@ -41,7 +45,7 @@ export class CourseFormComponent implements OnInit {
 
   onSuccess() {
     this.snackBar.open('Curso salvo com sucesso.', '', { duration: 5000 });
-    this.onCancel()
+    this.onCancel();
   }
 
   onError() {
